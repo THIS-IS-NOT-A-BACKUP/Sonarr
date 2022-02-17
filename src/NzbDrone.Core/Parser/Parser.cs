@@ -176,6 +176,10 @@ namespace NzbDrone.Core.Parser
                 new Regex(@"^(?<title>.+?)(?:\W+S(?<season>(?<!\d+)(?:\d{1,2})(?!\d+))\W+(?:(?:Part\W?|(?<!\d+\W+)e)(?<seasonpart>\d{1,2}(?!\d+)))+)",
                           RegexOptions.IgnoreCase | RegexOptions.Compiled),
 
+                //Anime - Title 4-digit Absolute Episode Number [SubGroup]
+                new Regex(@"^(?<title>.+?)[-_. ]+(?<absoluteepisode>(?<!\d+)\d{4}(?!\d+))[-_. ]\[(?<subgroup>.+?)\]",
+                    RegexOptions.IgnoreCase | RegexOptions.Compiled),
+
                 //Mini-Series with year in title, treated as season 1, episodes are labelled as Part01, Part 01, Part.1
                 new Regex(@"^(?<title>.+?\d{4})(?:\W+(?:(?:Part\W?|e)(?<episode>\d{1,2}(?!\d+)))+)",
                           RegexOptions.IgnoreCase | RegexOptions.Compiled),
@@ -468,9 +472,8 @@ namespace NzbDrone.Core.Parser
         private static readonly Regex TitleComponentsRegex = new Regex(@"^(?:(?<title>.+?) \((?<title>.+?)\)|(?<title>.+?) \| (?<title>.+?))$",
                                                                 RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static readonly Regex WordDelimiterRegex = new Regex(@"(\s|\.|,|_|-|=|\|)+", RegexOptions.Compiled);
         private static readonly Regex PunctuationRegex = new Regex(@"[^\w\s]", RegexOptions.Compiled);
-        private static readonly Regex CommonWordRegex = new Regex(@"\b(a|an|the|and|or|of)\b\s?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex ArticleWordRegex = new Regex(@"^(a|an|the)\s", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex SpecialEpisodeWordRegex = new Regex(@"\b(part|special|edition|christmas)\b\s?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex DuplicateSpacesRegex = new Regex(@"\s{2,}", RegexOptions.Compiled);
 
@@ -701,9 +704,8 @@ namespace NzbDrone.Core.Parser
 
         public static string NormalizeTitle(string title)
         {
-            title = WordDelimiterRegex.Replace(title, " ");
             title = PunctuationRegex.Replace(title, string.Empty);
-            title = CommonWordRegex.Replace(title, string.Empty);
+            title = ArticleWordRegex.Replace(title, string.Empty);
             title = DuplicateSpacesRegex.Replace(title, " ");
 
             return title.Trim().ToLower();
