@@ -9,7 +9,6 @@ using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Instrumentation;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Tv;
-using NzbDrone.Core.Languages;
 using System.Text;
 
 namespace NzbDrone.Core.Parser
@@ -30,7 +29,10 @@ namespace NzbDrone.Core.Parser
                 new RegexReplace(@"^\[(?<subgroup>[^\]]+)\](?:\s?★[^\[ -]+\s?)?\[?(?:(?<chinesetitle>[^\]]*?[\u4E00-\u9FCC][^\]]*?)(?:\]\[|\s*[_/·]\s*))?(?<title>[^\]]+?)\]?(?:\[\d{4}\])?\[第?(?<episode>[0-9]+(?:-[0-9]+)?)话?(?:END|完)?\]", "[${subgroup}] ${title} - ${episode} ", RegexOptions.Compiled),
                 
                 // Some Chinese anime releases contain both Chinese and English titles, remove the Chinese title and replace with normal anime pattern
-                new RegexReplace(@"^\[(?<subgroup>[^\]]+)\](?:\s)(?:(?<chinesetitle>[^\]]*?[\u4E00-\u9FCC][^\]]*?)(?:\s/\s))(?<title>[^\]]+?)(?:[- ]+)(?<episode>[0-9]+(?:-[0-9]+)?)话?(?:END|完)?", "[${subgroup}] ${title} - ${episode} ", RegexOptions.Compiled)
+                new RegexReplace(@"^\[(?<subgroup>[^\]]+)\](?:\s)(?:(?<chinesetitle>[^\]]*?[\u4E00-\u9FCC][^\]]*?)(?:\s/\s))(?<title>[^\]]+?)(?:[- ]+)(?<episode>[0-9]+(?:-[0-9]+)?)话?(?:END|完)?", "[${subgroup}] ${title} - ${episode} ", RegexOptions.Compiled),
+                
+                // Some Chinese anime releases contain both English and Chinese titles, remove the Chinese title and replace with normal anime pattern
+                new RegexReplace(@"^\[(?:(?<subgroup>[^\]]+?)(?:[\u4E00-\u9FCC]+))\]\[(?<title>[^\]]+?)(?:\s(?<chinesetitle>[\u4E00-\u9FCC][^\]]*?))\]\[(?:(?:[\u4E00-\u9FCC]+?)(?<episode>\d{1,4})(?:[\u4E00-\u9FCC]+?))\]", "[${subgroup}] ${title} - ${episode} - ", RegexOptions.Compiled)
             };
 
         private static readonly Regex[] ReportTitleRegex = new[]
@@ -351,6 +353,10 @@ namespace NzbDrone.Core.Parser
                 //Season only releases for poorly named anime
                 new Regex(@"^(?:\[(?<subgroup>.+?)\][-_. ])?(?<title>.+?)[-_. ]+?[\[(](?:S|Season|Saison|Series)[-_. ]?(?<season>\d{1,2}(?![-_. ]?\d+))(?:[-_. )\]]|$)+(?<extras>EXTRAS|SUBPACK)?(?!\\)",
                     RegexOptions.IgnoreCase | RegexOptions.Compiled),
+
+                //Episodes without a title, Single episode numbers (S1E1, 1x1)
+                new Regex(@"^(?:S?(?<season>(?<!\d+)(?:\d{1,2}|\d{4})(?!\d+))(?:(?:[-_ ]?[ex])(?<episode>\d{1}(?!\d+))))",
+                    RegexOptions.IgnoreCase | RegexOptions.Compiled)
             };
 
 
