@@ -194,11 +194,11 @@ namespace NzbDrone.Core.Notifications.Discord
                         break;
                     case DiscordImportFieldType.Languages:
                         discordField.Name = "Languages";
-                        discordField.Value = message.EpisodeFile.MediaInfo.AudioLanguages;
+                        discordField.Value = message.EpisodeFile.MediaInfo.AudioLanguages.ConcatToString("/");
                         break;
                     case DiscordImportFieldType.Subtitles:
                         discordField.Name = "Subtitles";
-                        discordField.Value = message.EpisodeFile.MediaInfo.Subtitles;
+                        discordField.Value = message.EpisodeFile.MediaInfo.Subtitles.ConcatToString("/");
                         break;
                     case DiscordImportFieldType.Release:
                         discordField.Name = "Release";
@@ -329,6 +329,7 @@ namespace NzbDrone.Core.Notifications.Discord
 
             _proxy.SendPayload(payload, Settings);
         }
+
         public override ValidationResult Test()
         {
             var failures = new List<ValidationFailure>();
@@ -346,7 +347,6 @@ namespace NzbDrone.Core.Notifications.Discord
                 var payload = CreatePayload(message);
 
                 _proxy.SendPayload(payload, Settings);
-
             }
             catch (DiscordException ex)
             {

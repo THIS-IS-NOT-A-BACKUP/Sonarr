@@ -38,7 +38,6 @@ namespace Sonarr.Api.V3.Series
         //View & Edit
         public string Path { get; set; }
         public int QualityProfileId { get; set; }
-        public int LanguageProfileId { get; set; }
 
         //Editing Only
         public bool SeasonFolder { get; set; }
@@ -72,13 +71,17 @@ namespace Sonarr.Api.V3.Series
     {
         public static SeriesResource ToResource(this NzbDrone.Core.Tv.Series model, bool includeSeasonImages = false)
         {
-            if (model == null) return null;
+            if (model == null)
+            {
+                return null;
+            }
 
             return new SeriesResource
                    {
                        Id = model.Id,
 
                        Title = model.Title,
+
                        //AlternateTitles
                        SortTitle = model.SortTitle,
 
@@ -88,6 +91,7 @@ namespace Sonarr.Api.V3.Series
                        //SizeOnDisk
                        Status = model.Status,
                        Overview = model.Overview,
+
                        //NextAiring
                        //PreviousAiring
                        Network = model.Network,
@@ -99,7 +103,6 @@ namespace Sonarr.Api.V3.Series
 
                        Path = model.Path,
                        QualityProfileId = model.QualityProfileId,
-                       LanguageProfileId = model.LanguageProfileId,
 
                        SeasonFolder = model.SeasonFolder,
                        Monitored = model.Monitored,
@@ -129,13 +132,17 @@ namespace Sonarr.Api.V3.Series
 
         public static NzbDrone.Core.Tv.Series ToModel(this SeriesResource resource)
         {
-            if (resource == null) return null;
+            if (resource == null)
+            {
+                return null;
+            }
 
             return new NzbDrone.Core.Tv.Series
                    {
                        Id = resource.Id,
 
                        Title = resource.Title,
+
                        //AlternateTitles
                        SortTitle = resource.SortTitle,
 
@@ -145,6 +152,7 @@ namespace Sonarr.Api.V3.Series
                        //SizeOnDisk
                        Status = resource.Status,
                        Overview = resource.Overview,
+
                        //NextAiring
                        //PreviousAiring
                        Network = resource.Network,
@@ -156,7 +164,6 @@ namespace Sonarr.Api.V3.Series
 
                        Path = resource.Path,
                        QualityProfileId = resource.QualityProfileId,
-                       LanguageProfileId = resource.LanguageProfileId,
 
                        SeasonFolder = resource.SeasonFolder,
                        Monitored = resource.Monitored,

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.Messaging.Events;
-
 
 namespace NzbDrone.Core.MediaFiles
 {
@@ -13,7 +13,6 @@ namespace NzbDrone.Core.MediaFiles
         List<EpisodeFile> GetFilesWithRelativePath(int seriesId, string relativePath);
     }
 
-
     public class MediaFileRepository : BasicRepository<EpisodeFile>, IMediaFileRepository
     {
         public MediaFileRepository(IMainDatabase database, IEventAggregator eventAggregator)
@@ -23,25 +22,22 @@ namespace NzbDrone.Core.MediaFiles
 
         public List<EpisodeFile> GetFilesBySeries(int seriesId)
         {
-            return Query.Where(c => c.SeriesId == seriesId).ToList();
+            return Query(c => c.SeriesId == seriesId).ToList();
         }
 
         public List<EpisodeFile> GetFilesBySeason(int seriesId, int seasonNumber)
         {
-            return Query.Where(c => c.SeriesId == seriesId)
-                        .AndWhere(c => c.SeasonNumber == seasonNumber)
-                        .ToList();
+            return Query(c => c.SeriesId == seriesId && c.SeasonNumber == seasonNumber).ToList();
         }
 
         public List<EpisodeFile> GetFilesWithoutMediaInfo()
         {
-            return Query.Where(c => c.MediaInfo == null).ToList();
+            return Query(c => c.MediaInfo == null).ToList();
         }
 
         public List<EpisodeFile> GetFilesWithRelativePath(int seriesId, string relativePath)
         {
-            return Query.Where(c => c.SeriesId == seriesId)
-                        .AndWhere(c => c.RelativePath == relativePath)
+            return Query(c => c.SeriesId == seriesId && c.RelativePath == relativePath)
                         .ToList();
         }
     }

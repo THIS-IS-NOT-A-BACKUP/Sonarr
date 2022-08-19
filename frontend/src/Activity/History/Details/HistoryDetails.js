@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import formatAge from 'Utilities/Number/formatAge';
-import formatDateTime from 'Utilities/Date/formatDateTime';
-import formatPreferredWordScore from 'Utilities/Number/formatPreferredWordScore';
-import Link from 'Components/Link/Link';
 import DescriptionList from 'Components/DescriptionList/DescriptionList';
 import DescriptionListItem from 'Components/DescriptionList/DescriptionListItem';
-import DescriptionListItemTitle from 'Components/DescriptionList/DescriptionListItemTitle';
 import DescriptionListItemDescription from 'Components/DescriptionList/DescriptionListItemDescription';
+import DescriptionListItemTitle from 'Components/DescriptionList/DescriptionListItemTitle';
+import Link from 'Components/Link/Link';
+import formatDateTime from 'Utilities/Date/formatDateTime';
+import formatAge from 'Utilities/Number/formatAge';
+import formatPreferredWordScore from 'Utilities/Number/formatPreferredWordScore';
 import styles from './HistoryDetails.css';
 
 function HistoryDetails(props) {
@@ -23,8 +23,8 @@ function HistoryDetails(props) {
     const {
       indexer,
       releaseGroup,
-      preferredWordScore,
       seriesMatchType,
+      customFormatScore,
       nzbInfoUrl,
       downloadClient,
       downloadClientName,
@@ -65,10 +65,10 @@ function HistoryDetails(props) {
         }
 
         {
-          preferredWordScore && preferredWordScore !== '0' ?
+          customFormatScore && customFormatScore !== '0' ?
             <DescriptionListItem
-              title="Preferred Word Score"
-              data={formatPreferredWordScore(preferredWordScore)}
+              title="Custom Format Score"
+              data={formatPreferredWordScore(customFormatScore)}
             /> :
             null
         }
@@ -163,7 +163,7 @@ function HistoryDetails(props) {
 
   if (eventType === 'downloadFolderImported') {
     const {
-      preferredWordScore,
+      customFormatScore,
       droppedPath,
       importedPath
     } = data;
@@ -197,10 +197,10 @@ function HistoryDetails(props) {
         }
 
         {
-          preferredWordScore && preferredWordScore !== '0' ?
+          customFormatScore && customFormatScore !== '0' ?
             <DescriptionListItem
-              title="Preferred Word Score"
-              data={formatPreferredWordScore(preferredWordScore)}
+              title="Custom Format Score"
+              data={formatPreferredWordScore(customFormatScore)}
             /> :
             null
         }
@@ -211,7 +211,7 @@ function HistoryDetails(props) {
   if (eventType === 'episodeFileDeleted') {
     const {
       reason,
-      preferredWordScore
+      customFormatScore
     } = data;
 
     let reasonMessage = '';
@@ -243,10 +243,10 @@ function HistoryDetails(props) {
         />
 
         {
-          preferredWordScore && preferredWordScore !== '0' ?
+          customFormatScore && customFormatScore !== '0' ?
             <DescriptionListItem
-              title="Preferred Word Score"
-              data={formatPreferredWordScore(preferredWordScore)}
+              title="Custom Format Score"
+              data={formatPreferredWordScore(customFormatScore)}
             /> :
             null
         }

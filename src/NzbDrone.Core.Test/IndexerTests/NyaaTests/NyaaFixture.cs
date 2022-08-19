@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Linq;
+using System.Net.Http;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -32,7 +33,7 @@ namespace NzbDrone.Core.Test.IndexerTests.NyaaTests
             var recentFeed = ReadAllText(@"Files/Indexers/Nyaa/Nyaa.xml");
 
             Mocker.GetMock<IHttpClient>()
-                .Setup(o => o.Execute(It.Is<HttpRequest>(v => v.Method == HttpMethod.GET)))
+                .Setup(o => o.Execute(It.Is<HttpRequest>(v => v.Method == HttpMethod.Get)))
                 .Returns<HttpRequest>(r => new HttpResponse(r, new HttpHeader(), recentFeed));
 
             var releases = Subject.FetchRecent();
@@ -62,7 +63,7 @@ namespace NzbDrone.Core.Test.IndexerTests.NyaaTests
             var recentFeed = ReadAllText(@"Files/Indexers/Nyaa/Nyaa2021.xml");
 
             Mocker.GetMock<IHttpClient>()
-                .Setup(o => o.Execute(It.Is<HttpRequest>(v => v.Method == HttpMethod.GET)))
+                .Setup(o => o.Execute(It.Is<HttpRequest>(v => v.Method == HttpMethod.Get)))
                 .Returns<HttpRequest>(r => new HttpResponse(r, new HttpHeader(), recentFeed));
 
             var releases = Subject.FetchRecent();
@@ -82,7 +83,7 @@ namespace NzbDrone.Core.Test.IndexerTests.NyaaTests
             torrentInfo.Size.Should().Be(639211930); //609.6 MiB
             torrentInfo.MagnetUrl.Should().Be(null);
             torrentInfo.Seeders.Should().Be(4);
-            torrentInfo.Peers.Should().Be(3+4);
+            torrentInfo.Peers.Should().Be(3 + 4);
         }
     }
 }

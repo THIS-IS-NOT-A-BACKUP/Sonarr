@@ -5,13 +5,13 @@ using System.Linq;
 using NLog;
 using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
+using NzbDrone.Core.Download;
+using NzbDrone.Core.Extras;
+using NzbDrone.Core.Languages;
 using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Qualities;
-using NzbDrone.Core.Download;
-using NzbDrone.Core.Extras;
-using NzbDrone.Core.Languages;
 
 namespace NzbDrone.Core.MediaFiles.EpisodeImport
 {
@@ -49,7 +49,6 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport
             var qualifiedImports = decisions.Where(c => c.Approved)
                .GroupBy(c => c.LocalEpisode.Series.Id, (i, s) => s
                    .OrderByDescending(c => c.LocalEpisode.Quality, new QualityModelComparer(s.First().LocalEpisode.Series.QualityProfile))
-                   .ThenByDescending(c => c.LocalEpisode.Language, new LanguageComparer(s.First().LocalEpisode.Series.LanguageProfile))
                    .ThenByDescending(c => c.LocalEpisode.Size))
                .SelectMany(c => c)
                .ToList();
@@ -84,7 +83,7 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport
                     episodeFile.SeasonNumber = localEpisode.SeasonNumber;
                     episodeFile.Episodes = localEpisode.Episodes;
                     episodeFile.ReleaseGroup = localEpisode.ReleaseGroup;
-                    episodeFile.Language = localEpisode.Language;
+                    episodeFile.Languages = localEpisode.Languages;
 
                     bool copyOnly;
                     switch (importMode)

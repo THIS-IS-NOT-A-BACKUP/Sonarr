@@ -63,7 +63,7 @@ namespace NzbDrone.Core.Notifications.Xbmc
         {
             var response = ProcessRequest(settings, "Player.GetActivePlayers");
 
-            return Json.Deserialize<ActivePlayersEdenResult>(response).Result;
+            return Json.Deserialize<ActivePlayersResult>(response).Result;
         }
 
         public List<TvShow> GetSeries(XbmcSettings settings)
@@ -84,7 +84,7 @@ namespace NzbDrone.Core.Notifications.Xbmc
 
             if (!settings.Username.IsNullOrWhiteSpace())
             {
-                request.AddBasicAuthentication(settings.Username, settings.Password);
+                request.Credentials = new BasicNetworkCredential(settings.Username, settings.Password);
             }
 
             var response = _httpClient.Execute(request);
@@ -97,7 +97,6 @@ namespace NzbDrone.Core.Notifications.Xbmc
 
         private void CheckForError(HttpResponse response)
         {
-
             if (string.IsNullOrWhiteSpace(response.Content))
             {
                 throw new XbmcJsonException("Invalid response from XBMC, the response is not valid JSON");

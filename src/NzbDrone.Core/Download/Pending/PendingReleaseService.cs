@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Marr.Data;
 using NLog;
 using NzbDrone.Common.Crypto;
 using NzbDrone.Common.Extensions;
@@ -181,7 +180,7 @@ namespace NzbDrone.Core.Download.Pending
                                     Id = GetQueueId(pendingRelease, episode),
                                     Series = pendingRelease.RemoteEpisode.Series,
                                     Episode = episode,
-                                    Language = pendingRelease.RemoteEpisode.ParsedEpisodeInfo.Language,
+                                    Languages = pendingRelease.RemoteEpisode.ParsedEpisodeInfo.Languages,
                                     Quality = pendingRelease.RemoteEpisode.ParsedEpisodeInfo.Quality,
                                     Title = pendingRelease.Title,
                                     Size = pendingRelease.RemoteEpisode.Release.Size,
@@ -289,7 +288,10 @@ namespace NzbDrone.Core.Download.Pending
                 var series = seriesMap.GetValueOrDefault(release.SeriesId);
 
                 // Just in case the series was removed, but wasn't cleaned up yet (housekeeper will clean it up)
-                if (series == null) return null;
+                if (series == null)
+                {
+                    return null;
+                }
 
                 release.RemoteEpisode = new RemoteEpisode
                 {
@@ -372,7 +374,7 @@ namespace NzbDrone.Core.Download.Pending
                 return;
             }
 
-            var profile = remoteEpisode.Series.QualityProfile.Value;
+            var profile = remoteEpisode.Series.QualityProfile;
 
             foreach (var existingReport in existingReports)
             {

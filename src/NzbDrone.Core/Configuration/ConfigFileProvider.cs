@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,12 +31,17 @@ namespace NzbDrone.Core.Configuration
         bool EnableSsl { get; }
         bool LaunchBrowser { get; }
         AuthenticationType AuthenticationMethod { get; }
+        AuthenticationRequiredType AuthenticationRequired { get; }
         bool AnalyticsEnabled { get; }
         string LogLevel { get; }
         string ConsoleLogLevel { get; }
+        bool LogSql { get; }
+        int LogRotate { get; }
+        bool FilterSentryEvents { get; }
         string Branch { get; }
         string ApiKey { get; }
-        string SslCertHash { get; }
+        string SslCertPath { get; }
+        string SslCertPassword { get; }
         string UrlBase { get; }
         string UiFolder { get; }
         string InstanceName { get; }
@@ -46,6 +51,7 @@ namespace NzbDrone.Core.Configuration
         string SyslogServer { get; }
         int SyslogPort { get; }
         string SyslogLevel { get; }
+        string Theme { get; }
     }
 
     public class ConfigFileProvider : IConfigFileProvider
@@ -102,15 +108,12 @@ namespace NzbDrone.Core.Configuration
                     continue;
                 }
 
-                if (configValue.Key.Equals("SslCertHash", StringComparison.InvariantCultureIgnoreCase) && configValue.Value.ToString().IsNotNullOrWhiteSpace())
-                {
-                    SetValue(configValue.Key.FirstCharToUpper(), HiddenCharacterRegex.Replace(configValue.Value.ToString(), string.Empty));
-                    continue;
-                }
-
                 object currentValue;
                 allWithDefaults.TryGetValue(configValue.Key, out currentValue);
-                if (currentValue == null) continue;
+                if (currentValue == null)
+                {
+                    continue;
+                }
 
                 var equal = configValue.Value.ToString().Equals(currentValue.ToString());
 
@@ -179,14 +182,21 @@ namespace NzbDrone.Core.Configuration
             }
         }
 
+        public AuthenticationRequiredType AuthenticationRequired => GetValueEnum("AuthenticationRequired", AuthenticationRequiredType.Enabled);
+
         public bool AnalyticsEnabled => GetValueBoolean("AnalyticsEnabled", true, persist: false);
 
         public string Branch => GetValue("Branch", "main").ToLowerInvariant();
 
-        public string LogLevel => GetValue("LogLevel", "info");
+        public string LogLevel => GetValue("LogLevel", "info").ToLowerInvariant();
         public string ConsoleLogLevel => GetValue("ConsoleLogLevel", string.Empty, persist: false);
 
-        public string SslCertHash => GetValue("SslCertHash", "");
+        public string Theme => GetValue("Theme", "light", persist: false);
+        public bool LogSql => GetValueBoolean("LogSql", false, persist: false);
+        public int LogRotate => GetValueInt("LogRotate", 50, persist: false);
+        public bool FilterSentryEvents => GetValueBoolean("FilterSentryEvents", true, persist: false);
+        public string SslCertPath => GetValue("SslCertPath", "");
+        public string SslCertPassword => GetValue("SslCertPassword", "");
 
         public string UrlBase
         {
@@ -199,12 +209,11 @@ namespace NzbDrone.Core.Configuration
                     return urlBase;
                 }
 
-                return "/" + urlBase.Trim('/').ToLower();
+                return "/" + urlBase;
             }
         }
 
-        // public string UiFolder => GetValue("UiFolder", "UI", false);GetValue("UiFolder", "UI", false);
-        public string UiFolder => "UI";
+        public string UiFolder => BuildInfo.IsDebug ? Path.Combine("..", "UI") : "UI";
 
         public string InstanceName
         {
@@ -212,10 +221,11 @@ namespace NzbDrone.Core.Configuration
             {
                 var instanceName = GetValue("InstanceName", BuildInfo.AppName);
 
-                if (instanceName.StartsWith(BuildInfo.AppName) || instanceName.EndsWith(BuildInfo.AppName) )
+                if (instanceName.StartsWith(BuildInfo.AppName) || instanceName.EndsWith(BuildInfo.AppName))
                 {
                     return instanceName;
                 }
+
                 return BuildInfo.AppName;
             }
         }
@@ -234,7 +244,7 @@ namespace NzbDrone.Core.Configuration
 
         public int GetValueInt(string key, int defaultValue, bool persist = true)
         {
-            return Convert.ToInt32(GetValue(key, defaultValue));
+            return Convert.ToInt32(GetValue(key, defaultValue, persist));
         }
 
         public bool GetValueBoolean(string key, bool defaultValue, bool persist = true)
@@ -258,7 +268,7 @@ namespace NzbDrone.Core.Configuration
 
                     var valueHolder = parentContainer.Descendants(key).ToList();
 
-                    if (valueHolder.Count() == 1)
+                    if (valueHolder.Count == 1)
                     {
                         return valueHolder.First().Value.Trim();
                     }
@@ -288,7 +298,6 @@ namespace NzbDrone.Core.Configuration
             {
                 parentContainer.Add(new XElement(key, valueString));
             }
-
             else
             {
                 parentContainer.Descendants(key).Single().Value = valueString;
@@ -362,7 +371,6 @@ namespace NzbDrone.Core.Configuration
                     return xDoc;
                 }
             }
-
             catch (XmlException ex)
             {
                 throw new InvalidConfigFileException($"{_configFile} is corrupt is invalid. Please delete the config file and Sonarr will recreate it.", ex);

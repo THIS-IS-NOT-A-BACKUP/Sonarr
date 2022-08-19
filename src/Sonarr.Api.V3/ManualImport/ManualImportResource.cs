@@ -24,7 +24,7 @@ namespace Sonarr.Api.V3.ManualImport
         public int? EpisodeFileId { get; set; }
         public string ReleaseGroup { get; set; }
         public QualityModel Quality { get; set; }
-        public Language Language { get; set; }
+        public List<Language> Languages { get; set; }
         public int QualityWeight { get; set; }
         public string DownloadId { get; set; }
         public IEnumerable<Rejection> Rejections { get; set; }
@@ -34,7 +34,10 @@ namespace Sonarr.Api.V3.ManualImport
     {
         public static ManualImportResource ToResource(this ManualImportItem model)
         {
-            if (model == null) return null;
+            if (model == null)
+            {
+                return null;
+            }
 
             return new ManualImportResource
             {
@@ -50,7 +53,8 @@ namespace Sonarr.Api.V3.ManualImport
                 EpisodeFileId = model.EpisodeFileId,
                 ReleaseGroup = model.ReleaseGroup,
                 Quality = model.Quality,
-                Language = model.Language,
+                Languages = model.Languages,
+
                 //QualityWeight
                 DownloadId = model.DownloadId,
                 Rejections = model.Rejections

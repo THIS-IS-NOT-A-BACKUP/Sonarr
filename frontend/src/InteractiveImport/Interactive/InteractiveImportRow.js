@@ -1,23 +1,23 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import formatBytes from 'Utilities/Number/formatBytes';
-import hasDifferentItems from 'Utilities/Object/hasDifferentItems';
-import { icons, kinds, tooltipPositions } from 'Helpers/Props';
 import Icon from 'Components/Icon';
 import LoadingIndicator from 'Components/Loading/LoadingIndicator';
-import TableRow from 'Components/Table/TableRow';
 import TableRowCell from 'Components/Table/Cells/TableRowCell';
 import TableRowCellButton from 'Components/Table/Cells/TableRowCellButton';
 import TableSelectCell from 'Components/Table/Cells/TableSelectCell';
+import TableRow from 'Components/Table/TableRow';
 import Popover from 'Components/Tooltip/Popover';
+import EpisodeLanguages from 'Episode/EpisodeLanguages';
 import EpisodeQuality from 'Episode/EpisodeQuality';
-import EpisodeLanguage from 'Episode/EpisodeLanguage';
-import SelectSeriesModal from 'InteractiveImport/Series/SelectSeriesModal';
-import SelectSeasonModal from 'InteractiveImport/Season/SelectSeasonModal';
+import { icons, kinds, tooltipPositions } from 'Helpers/Props';
 import SelectEpisodeModal from 'InteractiveImport/Episode/SelectEpisodeModal';
+import SelectLanguageModal from 'InteractiveImport/Language/SelectLanguageModal';
 import SelectQualityModal from 'InteractiveImport/Quality/SelectQualityModal';
 import SelectReleaseGroupModal from 'InteractiveImport/ReleaseGroup/SelectReleaseGroupModal';
-import SelectLanguageModal from 'InteractiveImport/Language/SelectLanguageModal';
+import SelectSeasonModal from 'InteractiveImport/Season/SelectSeasonModal';
+import SelectSeriesModal from 'InteractiveImport/Series/SelectSeriesModal';
+import formatBytes from 'Utilities/Number/formatBytes';
+import hasDifferentItems from 'Utilities/Object/hasDifferentItems';
 import InteractiveImportRowCellPlaceholder from './InteractiveImportRowCellPlaceholder';
 import styles from './InteractiveImportRow.css';
 
@@ -47,7 +47,7 @@ class InteractiveImportRow extends Component {
       seasonNumber,
       episodes,
       quality,
-      language,
+      languages,
       episodeFileId,
       columns
     } = this.props;
@@ -58,7 +58,7 @@ class InteractiveImportRow extends Component {
       seasonNumber != null &&
       episodes.length &&
       quality &&
-      language
+      languages
     ) {
       this.props.onSelectedChange({
         id,
@@ -79,7 +79,7 @@ class InteractiveImportRow extends Component {
       seasonNumber,
       episodes,
       quality,
-      language,
+      languages,
       isSelected,
       onValidRowChange
     } = this.props;
@@ -89,7 +89,7 @@ class InteractiveImportRow extends Component {
       prevProps.seasonNumber === seasonNumber &&
       !hasDifferentItems(prevProps.episodes, episodes) &&
       prevProps.quality === quality &&
-      prevProps.language === language &&
+      prevProps.languages === languages &&
       prevProps.isSelected === isSelected
     ) {
       return;
@@ -100,7 +100,7 @@ class InteractiveImportRow extends Component {
       seasonNumber != null &&
       episodes.length &&
       quality &&
-      language
+      languages
     );
 
     if (isSelected && !isValid) {
@@ -127,7 +127,7 @@ class InteractiveImportRow extends Component {
         value
       });
     }
-  }
+  };
 
   //
   // Listeners
@@ -142,61 +142,61 @@ class InteractiveImportRow extends Component {
       ...result,
       hasEpisodeFileId: !!episodeFileId
     });
-  }
+  };
 
   onSelectSeriesPress = () => {
     this.setState({ isSelectSeriesModalOpen: true });
-  }
+  };
 
   onSelectSeasonPress = () => {
     this.setState({ isSelectSeasonModalOpen: true });
-  }
+  };
 
   onSelectEpisodePress = () => {
     this.setState({ isSelectEpisodeModalOpen: true });
-  }
+  };
 
   onSelectReleaseGroupPress = () => {
     this.setState({ isSelectReleaseGroupModalOpen: true });
-  }
+  };
 
   onSelectQualityPress = () => {
     this.setState({ isSelectQualityModalOpen: true });
-  }
+  };
 
   onSelectLanguagePress = () => {
     this.setState({ isSelectLanguageModalOpen: true });
-  }
+  };
 
   onSelectSeriesModalClose = (changed) => {
     this.setState({ isSelectSeriesModalOpen: false });
     this.selectRowAfterChange(changed);
-  }
+  };
 
   onSelectSeasonModalClose = (changed) => {
     this.setState({ isSelectSeasonModalOpen: false });
     this.selectRowAfterChange(changed);
-  }
+  };
 
   onSelectEpisodeModalClose = (changed) => {
     this.setState({ isSelectEpisodeModalOpen: false });
     this.selectRowAfterChange(changed);
-  }
+  };
 
   onSelectReleaseGroupModalClose = (changed) => {
     this.setState({ isSelectReleaseGroupModalOpen: false });
     this.selectRowAfterChange(changed);
-  }
+  };
 
   onSelectQualityModalClose = (changed) => {
     this.setState({ isSelectQualityModalOpen: false });
     this.selectRowAfterChange(changed);
-  }
+  };
 
   onSelectLanguageModalClose = (changed) => {
     this.setState({ isSelectLanguageModalOpen: false });
     this.selectRowAfterChange(changed);
-  }
+  };
 
   //
   // Render
@@ -210,7 +210,7 @@ class InteractiveImportRow extends Component {
       seasonNumber,
       episodes,
       quality,
-      language,
+      languages,
       releaseGroup,
       size,
       rejections,
@@ -252,7 +252,7 @@ class InteractiveImportRow extends Component {
     const showEpisodeNumbersPlaceholder = isSelected && Number.isInteger(seasonNumber) && !episodes.length;
     const showReleaseGroupPlaceholder = isSelected && !releaseGroup;
     const showQualityPlaceholder = isSelected && !quality;
-    const showLanguagePlaceholder = isSelected && !language;
+    const showLanguagePlaceholder = isSelected && !languages;
 
     return (
       <TableRow>
@@ -352,10 +352,10 @@ class InteractiveImportRow extends Component {
           }
 
           {
-            !showLanguagePlaceholder && !!language &&
-              <EpisodeLanguage
+            !showLanguagePlaceholder && !!languages &&
+              <EpisodeLanguages
                 className={styles.label}
-                language={language}
+                languages={languages}
               />
           }
         </TableRowCellButton>
@@ -441,7 +441,7 @@ class InteractiveImportRow extends Component {
         <SelectLanguageModal
           isOpen={isSelectLanguageModalOpen}
           ids={[id]}
-          languageId={language ? language.id : 0}
+          languageId={languages ? languages.id : 0}
           modalTitle={modalTitle}
           onModalClose={this.onSelectLanguageModalClose}
         />
@@ -460,7 +460,7 @@ InteractiveImportRow.propTypes = {
   episodes: PropTypes.arrayOf(PropTypes.object).isRequired,
   releaseGroup: PropTypes.string,
   quality: PropTypes.object,
-  language: PropTypes.object,
+  languages: PropTypes.arrayOf(PropTypes.object),
   size: PropTypes.number.isRequired,
   rejections: PropTypes.arrayOf(PropTypes.object).isRequired,
   columns: PropTypes.arrayOf(PropTypes.object).isRequired,

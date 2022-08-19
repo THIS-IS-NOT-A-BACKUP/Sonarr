@@ -4,6 +4,7 @@ using System.Linq;
 using NLog;
 using NzbDrone.Common.Cache;
 using NzbDrone.Common.Extensions;
+using NzbDrone.Core.CustomFormats;
 using NzbDrone.Core.Download.History;
 using NzbDrone.Core.History;
 using NzbDrone.Core.Messaging.Events;
@@ -30,18 +31,21 @@ namespace NzbDrone.Core.Download.TrackedDownloads
         private readonly IHistoryService _historyService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IDownloadHistoryService _downloadHistoryService;
+        private readonly ICustomFormatCalculationService _formatCalculator;
         private readonly Logger _logger;
         private readonly ICached<TrackedDownload> _cache;
 
         public TrackedDownloadService(IParsingService parsingService,
                                       ICacheManager cacheManager,
                                       IHistoryService historyService,
+                                      ICustomFormatCalculationService formatCalculator,
                                       IEventAggregator eventAggregator,
                                       IDownloadHistoryService downloadHistoryService,
                                       Logger logger)
         {
             _parsingService = parsingService;
             _historyService = historyService;
+            _formatCalculator = formatCalculator;
             _eventAggregator = eventAggregator;
             _downloadHistoryService = downloadHistoryService;
             _cache = cacheManager.GetCache<TrackedDownload>(GetType());
@@ -140,6 +144,12 @@ namespace NzbDrone.Core.Download.TrackedDownloads
                     }
                 }
 
+                // Calculate custom formats
+                if (trackedDownload.RemoteEpisode != null)
+                {
+                    trackedDownload.RemoteEpisode.CustomFormats = _formatCalculator.ParseCustomFormat(parsedEpisodeInfo);
+                }
+
                 // Track it so it can be displayed in the queue even though we can't determine which series it is for
                 if (trackedDownload.RemoteEpisode == null)
                 {
@@ -181,9 +191,10 @@ namespace NzbDrone.Core.Download.TrackedDownloads
                 existingItem.CanMoveFiles != downloadItem.CanMoveFiles)
             {
                 _logger.Debug("Tracking '{0}:{1}': ClientState={2}{3} SonarrStage={4} Episode='{5}' OutputPath={6}.",
-                    downloadItem.DownloadClientInfo.Name, downloadItem.Title,
-                    downloadItem.Status, downloadItem.CanBeRemoved ? "" :
-                                         downloadItem.CanMoveFiles ? " (busy)" : " (readonly)",
+                    downloadItem.DownloadClientInfo.Name,
+                    downloadItem.Title,
+                    downloadItem.Status,
+                    downloadItem.CanBeRemoved ? "" : downloadItem.CanMoveFiles ? " (busy)" : " (readonly)",
                     trackedDownload.State,
                     trackedDownload.RemoteEpisode?.ParsedEpisodeInfo,
                     downloadItem.OutputPath);
@@ -194,7 +205,7 @@ namespace NzbDrone.Core.Download.TrackedDownloads
         {
             var parsedEpisodeInfo = Parser.Parser.ParseTitle(trackedDownload.DownloadItem.Title);
 
-            trackedDownload.RemoteEpisode = parsedEpisodeInfo == null ? null :_parsingService.Map(parsedEpisodeInfo, 0, 0);
+            trackedDownload.RemoteEpisode = parsedEpisodeInfo == null ? null : _parsingService.Map(parsedEpisodeInfo, 0, 0);
         }
 
         private static TrackedDownloadState GetStateFromHistory(DownloadHistoryEventType eventType)

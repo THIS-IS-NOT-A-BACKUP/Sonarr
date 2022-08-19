@@ -1,10 +1,13 @@
-﻿using NzbDrone.Core.MediaFiles;
+using System;
+using NzbDrone.Core.MediaFiles;
 
 namespace NzbDrone.Core.Notifications.Webhook
 {
     public class WebhookEpisodeFile
     {
-        public WebhookEpisodeFile() { }
+        public WebhookEpisodeFile()
+        {
+        }
 
         public WebhookEpisodeFile(EpisodeFile episodeFile)
         {
@@ -16,6 +19,7 @@ namespace NzbDrone.Core.Notifications.Webhook
             ReleaseGroup = episodeFile.ReleaseGroup;
             SceneName = episodeFile.SceneName;
             Size = episodeFile.Size;
+            DateAdded = episodeFile.DateAdded;
         }
 
         public int Id { get; set; }
@@ -26,5 +30,6 @@ namespace NzbDrone.Core.Notifications.Webhook
         public string ReleaseGroup { get; set; }
         public string SceneName { get; set; }
         public long Size { get; set; }
+        public DateTime DateAdded { get; set; }
     }
 }

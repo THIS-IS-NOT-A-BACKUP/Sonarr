@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using NzbDrone.Core.Blocklisting;
+using NzbDrone.Core.Languages;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Test.Framework;
 
@@ -22,6 +23,7 @@ namespace NzbDrone.Core.Test.Blocklisting
                          SeriesId = 12345,
                          EpisodeIds = new List<int> { 1 },
                          Quality = new QualityModel(Quality.Bluray720p),
+                         Languages = new List<Language> { Language.English },
                          SourceTitle = "series.title.s01e01",
                          Date = DateTime.UtcNow
                      };

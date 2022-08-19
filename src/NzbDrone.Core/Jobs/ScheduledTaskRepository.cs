@@ -3,7 +3,6 @@ using System.Linq;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.Messaging.Events;
 
-
 namespace NzbDrone.Core.Jobs
 {
     public interface IScheduledTaskRepository : IBasicRepository<ScheduledTask>
@@ -14,7 +13,6 @@ namespace NzbDrone.Core.Jobs
 
     public class ScheduledTaskRepository : BasicRepository<ScheduledTask>, IScheduledTaskRepository
     {
-
         public ScheduledTaskRepository(IMainDatabase database, IEventAggregator eventAggregator)
             : base(database, eventAggregator)
         {
@@ -22,7 +20,7 @@ namespace NzbDrone.Core.Jobs
 
         public ScheduledTask GetDefinition(Type type)
         {
-            return Query.Where(c => c.TypeName == type.FullName).Single();
+            return Query(c => c.TypeName == type.FullName).Single();
         }
 
         public void SetLastExecutionTime(int id, DateTime executionTime)

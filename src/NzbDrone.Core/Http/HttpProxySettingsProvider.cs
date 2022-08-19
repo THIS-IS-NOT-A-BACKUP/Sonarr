@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using NzbDrone.Common.Http;
 using NzbDrone.Common.Http.Proxy;
@@ -15,13 +15,15 @@ namespace NzbDrone.Core.Http
             _configService = configService;
         }
 
-        public HttpProxySettings GetProxySettings(HttpRequest request)
+        public HttpProxySettings GetProxySettings(HttpUri uri)
         {
             var proxySettings = GetProxySettings();
             if (proxySettings == null)
+            {
                 return null;
+            }
 
-            if (ShouldProxyBeBypassed(proxySettings, request.Url))
+            if (ShouldProxyBeBypassed(proxySettings, uri))
             {
                 return null;
             }

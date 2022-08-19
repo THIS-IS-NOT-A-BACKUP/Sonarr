@@ -1,17 +1,20 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { icons, kinds, tooltipPositions } from 'Helpers/Props';
+import HistoryDetailsConnector from 'Activity/History/Details/HistoryDetailsConnector';
+import HistoryEventTypeCell from 'Activity/History/HistoryEventTypeCell';
 import Icon from 'Components/Icon';
+import Label from 'Components/Label';
 import IconButton from 'Components/Link/IconButton';
 import ConfirmModal from 'Components/Modal/ConfirmModal';
 import RelativeDateCellConnector from 'Components/Table/Cells/RelativeDateCellConnector';
-import TableRow from 'Components/Table/TableRow';
 import TableRowCell from 'Components/Table/Cells/TableRowCell';
+import TableRow from 'Components/Table/TableRow';
 import Popover from 'Components/Tooltip/Popover';
-import EpisodeLanguage from 'Episode/EpisodeLanguage';
+import Tooltip from 'Components/Tooltip/Tooltip';
+import EpisodeLanguages from 'Episode/EpisodeLanguages';
 import EpisodeQuality from 'Episode/EpisodeQuality';
-import HistoryDetailsConnector from 'Activity/History/Details/HistoryDetailsConnector';
-import HistoryEventTypeCell from 'Activity/History/HistoryEventTypeCell';
+import { icons, kinds, tooltipPositions } from 'Helpers/Props';
+import formatPreferredWordScore from 'Utilities/Number/formatPreferredWordScore';
 import styles from './EpisodeHistoryRow.css';
 
 function getTitle(eventType) {
@@ -44,16 +47,16 @@ class EpisodeHistoryRow extends Component {
 
   onMarkAsFailedPress = () => {
     this.setState({ isMarkAsFailedModalOpen: true });
-  }
+  };
 
   onConfirmMarkAsFailed = () => {
     this.props.onMarkAsFailedPress(this.props.id);
     this.setState({ isMarkAsFailedModalOpen: false });
-  }
+  };
 
   onMarkAsFailedModalClose = () => {
     this.setState({ isMarkAsFailedModalOpen: false });
-  }
+  };
 
   //
   // Render
@@ -62,10 +65,11 @@ class EpisodeHistoryRow extends Component {
     const {
       eventType,
       sourceTitle,
-      language,
+      languages,
       languageCutoffNotMet,
       quality,
       qualityCutoffNotMet,
+      customFormats,
       date,
       data
     } = this.props;
@@ -86,8 +90,8 @@ class EpisodeHistoryRow extends Component {
         </TableRowCell>
 
         <TableRowCell>
-          <EpisodeLanguage
-            language={language}
+          <EpisodeLanguages
+            languages={languages}
             isCutoffNotMet={languageCutoffNotMet}
           />
         </TableRowCell>
@@ -122,6 +126,28 @@ class EpisodeHistoryRow extends Component {
           />
         </TableRowCell>
 
+        <TableRowCell className={styles.customFormatScore}>
+          <Tooltip
+            anchor={
+              formatPreferredWordScore(data.customFormatScore)
+            }
+            tooltip={
+              <div>
+                {
+                  customFormats.map((format) => {
+                    return (
+                      <Label key={format.id}>
+                        {format.name}
+                      </Label>
+                    );
+                  })
+                }
+              </div>
+            }
+            position={tooltipPositions.BOTTOM}
+          />
+        </TableRowCell>
+
         <TableRowCell className={styles.actions}>
           {
             eventType === 'grabbed' &&
@@ -151,10 +177,11 @@ EpisodeHistoryRow.propTypes = {
   id: PropTypes.number.isRequired,
   eventType: PropTypes.string.isRequired,
   sourceTitle: PropTypes.string.isRequired,
-  language: PropTypes.object.isRequired,
+  languages: PropTypes.arrayOf(PropTypes.object).isRequired,
   languageCutoffNotMet: PropTypes.bool.isRequired,
   quality: PropTypes.object.isRequired,
   qualityCutoffNotMet: PropTypes.bool.isRequired,
+  customFormats: PropTypes.arrayOf(PropTypes.object),
   date: PropTypes.string.isRequired,
   data: PropTypes.object.isRequired,
   onMarkAsFailedPress: PropTypes.func.isRequired

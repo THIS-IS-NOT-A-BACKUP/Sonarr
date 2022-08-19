@@ -2,7 +2,7 @@ using NzbDrone.Core.Indexers;
 
 namespace Sonarr.Api.V3.Indexers
 {
-    public class IndexerResource : ProviderResource
+    public class IndexerResource : ProviderResource<IndexerResource>
     {
         public bool EnableRss { get; set; }
         public bool EnableAutomaticSearch { get; set; }
@@ -19,7 +19,10 @@ namespace Sonarr.Api.V3.Indexers
     {
         public override IndexerResource ToResource(IndexerDefinition definition)
         {
-            if (definition == null) return null;
+            if (definition == null)
+            {
+                return null;
+            }
 
             var resource = base.ToResource(definition);
 
@@ -36,11 +39,14 @@ namespace Sonarr.Api.V3.Indexers
             return resource;
         }
 
-        public override IndexerDefinition ToModel(IndexerResource resource)
+        public override IndexerDefinition ToModel(IndexerResource resource, IndexerDefinition existingDefinition)
         {
-            if (resource == null) return null;
+            if (resource == null)
+            {
+                return null;
+            }
 
-            var definition = base.ToModel(resource);
+            var definition = base.ToModel(resource, existingDefinition);
 
             definition.EnableRss = resource.EnableRss;
             definition.EnableAutomaticSearch = resource.EnableAutomaticSearch;

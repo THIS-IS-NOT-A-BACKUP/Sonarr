@@ -29,8 +29,7 @@ namespace NzbDrone.Core.DecisionEngine
             var comparers = new List<CompareDelegate>
             {
                 CompareQuality,
-                CompareLanguage,
-                ComparePreferredWordScore,
+                CompareCustomFormatScore,
                 CompareProtocol,
                 CompareEpisodeCount,
                 CompareEpisodeNumber,
@@ -55,7 +54,7 @@ namespace NzbDrone.Core.DecisionEngine
         private int CompareByReverse<TSubject, TValue>(TSubject left, TSubject right, Func<TSubject, TValue> funcValue)
             where TValue : IComparable<TValue>
         {
-            return CompareBy(left, right, funcValue)*-1;
+            return CompareBy(left, right, funcValue) * -1;
         }
 
         private int CompareAll(params int[] comparers)
@@ -77,18 +76,12 @@ namespace NzbDrone.Core.DecisionEngine
 
             return CompareAll(
                 CompareBy(x.RemoteEpisode, y.RemoteEpisode, remoteEpisode => remoteEpisode.Series.QualityProfile.Value.GetIndex(remoteEpisode.ParsedEpisodeInfo.Quality.Quality)),
-                CompareBy(x.RemoteEpisode, y.RemoteEpisode, remoteEpisode => remoteEpisode.ParsedEpisodeInfo.Quality.Revision)
-                );
+                CompareBy(x.RemoteEpisode, y.RemoteEpisode, remoteEpisode => remoteEpisode.ParsedEpisodeInfo.Quality.Revision));
         }
 
-        private int CompareLanguage(DownloadDecision x, DownloadDecision y)
+        private int CompareCustomFormatScore(DownloadDecision x, DownloadDecision y)
         {
-            return CompareBy(x.RemoteEpisode, y.RemoteEpisode, remoteEpisode => remoteEpisode.Series.LanguageProfile.Value.Languages.FindIndex(l => l.Language == remoteEpisode.ParsedEpisodeInfo.Language));
-        }
-
-        private int ComparePreferredWordScore(DownloadDecision x, DownloadDecision y)
-        {
-            return CompareBy(x.RemoteEpisode, y.RemoteEpisode, remoteEpisode => remoteEpisode.PreferredWordScore);
+            return CompareBy(x.RemoteEpisode, y.RemoteEpisode, remoteMovie => remoteMovie.CustomFormatScore);
         }
 
         private int CompareProtocol(DownloadDecision x, DownloadDecision y)
@@ -105,7 +98,8 @@ namespace NzbDrone.Core.DecisionEngine
 
         private int CompareEpisodeCount(DownloadDecision x, DownloadDecision y)
         {
-            var seasonPackCompare = CompareBy(x.RemoteEpisode, y.RemoteEpisode,
+            var seasonPackCompare = CompareBy(x.RemoteEpisode,
+                y.RemoteEpisode,
                 remoteEpisode => remoteEpisode.ParsedEpisodeInfo.FullSeason);
 
             if (seasonPackCompare != 0)
