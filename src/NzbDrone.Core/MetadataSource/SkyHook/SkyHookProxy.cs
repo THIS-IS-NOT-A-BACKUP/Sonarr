@@ -69,6 +69,20 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
             return new Tuple<Series, List<Episode>>(series, episodes.ToList());
         }
 
+        public List<Series> SearchForNewSeriesByImdbId(string imdbId)
+        {
+            imdbId = Parser.Parser.NormalizeImdbId(imdbId);
+
+            if (imdbId == null)
+            {
+                return new List<Series>();
+            }
+
+            var results = SearchForNewSeries($"imdb:{imdbId}");
+
+            return results;
+        }
+
         public List<Series> SearchForNewSeries(string title)
         {
             try
@@ -160,7 +174,7 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
             series.CleanTitle = Parser.Parser.CleanSeriesTitle(show.Title);
             series.SortTitle = SeriesTitleNormalizer.Normalize(show.Title, show.TvdbId);
 
-            series.OriginalLanguage = IsoLanguages.Find(show.OriginalLanguage.ToLower())?.Language ?? Language.English;
+            series.OriginalLanguage = IsoLanguages.Find(show.OriginalLanguage?.ToLower())?.Language ?? Language.English;
 
             if (show.FirstAired != null)
             {
