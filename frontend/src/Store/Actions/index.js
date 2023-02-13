@@ -18,9 +18,7 @@ import * as providerOptions from './providerOptionActions';
 import * as queue from './queueActions';
 import * as releases from './releaseActions';
 import * as rootFolders from './rootFolderActions';
-import * as seasonPass from './seasonPassActions';
 import * as series from './seriesActions';
-import * as seriesEditor from './seriesEditorActions';
 import * as seriesHistory from './seriesHistoryActions';
 import * as seriesIndex from './seriesIndexActions';
 import * as settings from './settingsActions';
@@ -49,9 +47,7 @@ export default [
   queue,
   releases,
   rootFolders,
-  seasonPass,
   series,
-  seriesEditor,
   seriesHistory,
   seriesIndex,
   settings,
