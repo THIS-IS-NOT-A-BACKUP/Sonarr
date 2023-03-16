@@ -516,6 +516,31 @@ namespace NzbDrone.Core.Parser
 
             var result = ParseTitle(fileInfo.Name);
 
+            if (result == null && int.TryParse(Path.GetFileNameWithoutExtension(fileInfo.Name), out var number))
+            {
+                Logger.Debug("Attempting to parse episode info using directory and file names. {0}", fileInfo.Directory.Name);
+                result = ParseTitle(fileInfo.Directory.Name);
+
+                if (result != null && result.AbsoluteEpisodeNumbers.Contains(number))
+                {
+                    result.AbsoluteEpisodeNumbers = new[] { number };
+                }
+                else if (result != null && result.EpisodeNumbers.Contains(number))
+                {
+                    result.EpisodeNumbers = new[] { number };
+                }
+                else
+                {
+                    result = null;
+                }
+            }
+
+            if (result == null)
+            {
+                Logger.Debug("Attempting to parse episode info using combined directory and file names. {0}", fileInfo.Directory.Name);
+                result = ParseTitle(fileInfo.Directory.Name + " " + fileInfo.Name);
+            }
+
             if (result == null)
             {
                 Logger.Debug("Attempting to parse episode info using directory and file names. {0}", fileInfo.Directory.Name);
@@ -545,7 +570,7 @@ namespace NzbDrone.Core.Parser
                 var titleWithoutExtension = RemoveFileExtension(title).ToCharArray();
                 Array.Reverse(titleWithoutExtension);
 
-                title = new string(titleWithoutExtension) + title.Substring(titleWithoutExtension.Length);
+                title = string.Concat(new string(titleWithoutExtension), title.AsSpan(titleWithoutExtension.Length));
 
                 Logger.Debug("Reversed name detected. Converted to '{0}'", title);
             }
@@ -576,7 +601,7 @@ namespace NzbDrone.Core.Parser
                     var titleWithoutExtension = RemoveFileExtension(title).ToCharArray();
                     Array.Reverse(titleWithoutExtension);
 
-                    title = new string(titleWithoutExtension) + title.Substring(titleWithoutExtension.Length);
+                    title = string.Concat(new string(titleWithoutExtension), title.AsSpan(titleWithoutExtension.Length));
 
                     Logger.Debug("Reversed name detected. Converted to '{0}'", title);
                 }
@@ -890,8 +915,8 @@ namespace NzbDrone.Core.Parser
                 result = new ParsedEpisodeInfo
                 {
                     ReleaseTitle = releaseTitle,
-                    EpisodeNumbers = new int[0],
-                    AbsoluteEpisodeNumbers = new int[0]
+                    EpisodeNumbers = Array.Empty<int>(),
+                    AbsoluteEpisodeNumbers = Array.Empty<int>()
                 };
 
                 foreach (Match matchGroup in matchCollection)
