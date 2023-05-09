@@ -70,7 +70,8 @@ namespace NzbDrone.Core.Download
                 return;
             }
 
-            var historyItem = _historyService.MostRecentForDownloadId(trackedDownload.DownloadItem.DownloadId);
+            var grabbedHistories = _historyService.FindByDownloadId(trackedDownload.DownloadItem.DownloadId).Where(h => h.EventType == EpisodeHistoryEventType.Grabbed).ToList();
+            var historyItem = grabbedHistories.MaxBy(h => h.Date);
 
             if (historyItem == null && trackedDownload.DownloadItem.Category.IsNullOrWhiteSpace())
             {
@@ -105,6 +106,17 @@ namespace NzbDrone.Core.Download
                 if (seriesMatchType == SeriesMatchType.Id && releaseSource != ReleaseSourceType.InteractiveSearch)
                 {
                     trackedDownload.Warn("Found matching series via grab history, but release was matched to series by ID. Automatic import is not possible. See the FAQ for details.");
+
+                    if (!trackedDownload.HasNotifiedManualInteractionRequired)
+                    {
+                        trackedDownload.HasNotifiedManualInteractionRequired = true;
+
+                        var releaseInfo = new GrabbedReleaseInfo(grabbedHistories);
+                        var manualInteractionEvent = new ManualInteractionRequiredEvent(trackedDownload, releaseInfo);
+
+                        _eventAggregator.PublishEvent(manualInteractionEvent);
+                    }
+
                     return;
                 }
             }
